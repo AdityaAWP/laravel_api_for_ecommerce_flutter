@@ -15,6 +15,7 @@ class AuthController extends Controller
             'name' => 'required|string|min:3|max:191',
             'email' => 'required|string|email|max:191|unique:users',
             'password' => 'required|string|min:4|max:191',
+            'role' => 'string'
         ]);
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
@@ -24,6 +25,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role ?? 'user'
         ]);
         $token= $user->createToken('auth_token')->plainTextToken;
         return response()->json([
@@ -59,7 +61,7 @@ class AuthController extends Controller
             ], 404);
         }
     }
-
+    
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
         return response()->json([
