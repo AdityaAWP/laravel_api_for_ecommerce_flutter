@@ -19,7 +19,6 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         if (!$request->user()) {
-            Log::channel('order')->warning('Unauthenticated request');
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
     
@@ -36,12 +35,10 @@ class OrderController extends Controller
         ]);
     
         try {
-            // Calculate total price from products
             $totalPrice = collect($request->products)->sum(function($product) {
                 return $product['price'] * $product['quantity'];
             });
         
-            // Create order with shipping information
             $order = Order::create([
                 'user_id' => $request->user()->id,
                 'total_price' => $totalPrice + $request->shipping_cost,
@@ -57,7 +54,6 @@ class OrderController extends Controller
                 $order->save();
             }
         
-            // Create order details
             foreach ($request->products as $product) {
                 OrderDetail::create([
                     'order_id' => $order->id,
@@ -90,20 +86,37 @@ class OrderController extends Controller
         $order = Order::findOrFail($orderId);
 
         if ($request->hasFile('order_proof')) {
-            $proofPath = $request->file('order_proof')->store('order_proofs', 'public');
-            $order->order_proof = $proofPath;
-            $order->save();
-        }
+            try {
+                $proofPath = $request->file('order_proof')->store('order_proofs', 'public');
+                $order->order_proof = $proofPath;
+                $order->save();
 
-        return response()->json([
-            'message' => 'Proof of payment uploaded successfully',
-            'data' => $order
-        ], 200);
+                return response()->json([
+                    'message' => 'Proof of payment uploaded successfully',
+                    'data' => $order
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Failed to upload proof of payment',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        } else {
+            return response()->json([
+                'message' => 'No file found in the request'
+            ], 400);
+        }
     }
 
     public function orderHistory(Request $request)
     {
         $orders = Order::with('details.product')->where('user_id', $request->user()->id)->get();
         return response()->json($orders);
+    }
+
+    public function show($id)
+    {
+        $order = Order::with('details.product')->findOrFail($id);
+        return response()->json($order);
     }
 }
