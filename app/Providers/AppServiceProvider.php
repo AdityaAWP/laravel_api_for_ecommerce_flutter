@@ -17,8 +17,16 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        if (!defined('SIGTERM')) {
+            define('SIGTERM', 15);
+        }
+        if (!defined('SIGINT')) {
+            define('SIGINT', 2);
+        }
+        if (!defined('SIGHUP')) {
+            define('SIGHUP', 1);
+        }
     }
 }

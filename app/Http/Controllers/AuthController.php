@@ -61,7 +61,26 @@ class AuthController extends Controller
             ], 404);
         }
     }
-    
+
+    public function update(Request $request, $id){
+        $user = User::findOrFail($id);
+        $validator = Validator::make($request->all(),[
+            'name' => 'string|min:3|max:191',
+            'email' => 'string|email|max:191|unique:users,email,'.$id,
+            'password' => 'string|min:4|max:191',
+        ]);
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+        if($request->password){
+            $request->merge([
+                'password' => Hash::make($request->password)
+            ]);
+        }
+        $user->update($request->all());
+        return response()->json($user);
+    }
+
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
         return response()->json([
