@@ -4,7 +4,7 @@ use Illuminate\Http\Client\Response;
 
 test('example', function () {
     $response = $this->get('/api/products', [
-        'Authorization' => 'Bearer 2|lZNf0fRmr8I7Bb8ZuwIcQOMum2aFx6mEWqY9EJO0a07ee7fe',
+        'Authorization' => 'Bearer 16|JSHICRyqMy8CiXzFqEjIOvOOkCMWETcbmYItmkPc08b0733d',
     ]);
 
     $expectedData = [

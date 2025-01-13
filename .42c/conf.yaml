@@ -1,0 +1,3 @@
+apis:
+  documentation/apidocs.yml:
+    alias: e-commerce-api

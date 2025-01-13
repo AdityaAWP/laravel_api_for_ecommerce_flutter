@@ -1,0 +1,555 @@
+openapi: '3.0.3'
+info:
+  title: E-Commerce API
+  version: '1.0'
+servers:
+  - url: https://3289-103-246-107-4.ngrok-free.app/api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "JWT"
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+
+  /login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+
+  /products:
+    get:
+      summary: Get a list of products
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    product_title:
+                      type: string
+                    product_price:
+                      type: number
+
+    post:
+      summary: Create a new product
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                product_title:
+                  type: string
+                product_description:
+                  type: string
+                product_price:
+                  type: number
+                product_image:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  product_title:
+                    type: string
+                  product_description:
+                    type: string
+                  product_price:
+                    type: number
+                  product_image:
+                    type: string
+
+  /products/{id}:
+    put:
+      summary: Update a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                product_title:
+                  type: string
+                product_description:
+                  type: string
+                product_price:
+                  type: number
+                product_image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  product_title:
+                    type: string
+                  product_description:
+                    type: string
+                  product_price:
+                    type: number
+                  product_image:
+                    type: string
+
+    delete:
+      summary: Delete a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  product_title:
+                    type: string
+                  product_description:
+                    type: string
+                  product_price:
+                    type: number
+                  product_image:
+                    type: string
+
+  /products/search:
+    get:
+      summary: Search for products
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    product_title:
+                      type: string
+                    product_price:
+                      type: number
+
+  /orders:
+    get:
+      summary: Get a list of orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    total_price:
+                      type: number
+                    shipping_price:
+                      type: number
+                    shipping_destination:
+                      type: string
+                    courier_service:
+                      type: string
+                    estimated_days:
+                      type: string
+
+    post:
+      summary: Create a new order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      price:
+                        type: number
+                      quantity:
+                        type: integer
+                shipping_cost:
+                  type: number
+                shipping_destination:
+                  type: string
+                courier_service:
+                  type: string
+                estimated_days:
+                  type: string
+                order_proof:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  total_price:
+                    type: number
+                  shipping_price:
+                    type: number
+                  shipping_destination:
+                    type: string
+                  courier_service:
+                    type: string
+                  estimated_days:
+                    type: string
+
+  /orders/{id}:
+    get:
+      summary: Get order details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  total_price:
+                    type: number
+                  shipping_price:
+                    type: number
+                  shipping_destination:
+                    type: string
+                  courier_service:
+                    type: string
+                  estimated_days:
+                    type: string
+
+  /orders/{id}/upload-proof:
+    post:
+      summary: Upload proof of payment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                order_proof:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Proof of payment uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  order_proof:
+                    type: string
+
+  /order-history:
+    get:
+      summary: Get order history
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Order history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    total_price:
+                      type: number
+                    shipping_price:
+                      type: number
+                    shipping_destination:
+                      type: string
+                    courier_service:
+                      type: string
+                    estimated_days:
+                      type: string
+
+  /shipping/provinces:
+    get:
+      summary: Get list of provinces
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of provinces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+
+  /shipping/cities:
+    get:
+      summary: Get list of cities
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: province_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+
+  /shipping/cost:
+    post:
+      summary: Calculate shipping cost
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                origin:
+                  type: string
+                destination:
+                  type: string
+                courier:
+                  type: string
+      responses:
+        '200':
+          description: Shipping cost calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: integer
+                      status:
+                        type: string
+                  data:
+                    type: object
+
+  /shipping/domestic-cost:
+    post:
+      summary: Calculate domestic shipping cost
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                origin:
+                  type: string
+                destination:
+                  type: string
+                weight:
+                  type: number
+                courier:
+                  type: string
+                price:
+                  type: string
+      responses:
+        '200':
+          description: Domestic shipping cost calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: integer
+                      status:
+                        type: string
+                  data:
+                    type: object
